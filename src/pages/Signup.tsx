@@ -1,39 +1,20 @@
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { useFormik } from "formik";
 import { useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useFormik } from "formik";
+import { useAuth } from "../hooks/useAuth";
 import { initialValuesSignup, validationSignupSchema } from "../schemas/auth";
-import { toast } from "sonner";
-import { signUp } from "../http/auth";
-import type { SignUpRequest, SignUpResponse } from "../types/auth";
 
 export function Signup() {
   const navigate = useNavigate();
+  const { signUp, isSigningUp } = useAuth();
 
-  const { mutateAsync: signUpFn, isPending } = useMutation<
-    SignUpResponse,
-    Error,
-    SignUpRequest
-  >({
-    mutationFn: signUp,
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.token);
-      toast.success("Cadastro realizado com sucesso!", {
-        description: `Bem vindo(a), ${data.user.name}!`,
-      });
-      navigate("/home");
-    },
-    onError: (error: any) => {
-      toast.error(error.response.data.message);
-    },
-  });
   const formik = useFormik({
     initialValues: initialValuesSignup,
     validationSchema: validationSignupSchema,
-    onSubmit: (values) => {
-      signUpFn({
+    onSubmit: async (values) => {
+      await signUp({
         name: values.name,
         email: values.email,
         password: values.password,
@@ -44,7 +25,7 @@ export function Signup() {
 
   return (
     <div className="flex-1 flex items-center justify-center px-4">
-      <div className="bg-mauve-dark-300 rounded-sm p-4 w-full max-w-[412px] ">
+      <div className="bg-mauve-dark-300 rounded-sm p-4 w-full max-w-[412px]">
         <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col space-y-2">
             <Label>Nome</Label>
@@ -56,6 +37,7 @@ export function Signup() {
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isSigningUp}
             />
             {formik.touched.name && formik.errors.name && (
               <span className="text-red-500 text-sm">{formik.errors.name}</span>
@@ -63,7 +45,7 @@ export function Signup() {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label>E-mail</Label>
+            <Label>Email</Label>
             <Input
               type="email"
               placeholder="Digite seu e-mail"
@@ -72,11 +54,10 @@ export function Signup() {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isSigningUp}
             />
             {formik.touched.email && formik.errors.email && (
-              <span className="text-red-500 text-sm">
-                {formik.errors.email}
-              </span>
+              <span className="text-red-500 text-sm">{formik.errors.email}</span>
             )}
           </div>
 
@@ -90,6 +71,7 @@ export function Signup() {
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isSigningUp}
             />
             {formik.touched.password && formik.errors.password && (
               <span className="text-red-500 text-sm">
@@ -99,22 +81,22 @@ export function Signup() {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label>Confirmação de senha</Label>
+            <Label>Confirmar Senha</Label>
             <Input
               type="password"
-              placeholder="Digite sua senha novamente"
+              placeholder="Confirme sua senha"
               id="confirmPassword"
               name="confirmPassword"
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isSigningUp}
             />
-            {formik.touched.confirmPassword &&
-              formik.errors.confirmPassword && (
-                <span className="text-red-500 text-sm">
-                  {formik.errors.confirmPassword}
-                </span>
-              )}
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+              <span className="text-red-500 text-sm">
+                {formik.errors.confirmPassword}
+              </span>
+            )}
           </div>
 
           <div className="flex w-full justify-between items-center mt-2">
@@ -122,10 +104,10 @@ export function Signup() {
               className="text-purple-dark-900 underline cursor-pointer"
               onClick={() => navigate("/")}
             >
-              Já tenho uma conta
+              Já possui uma conta?
             </span>
-            <Button variant="primary" type="submit" disabled={isPending}>
-              Cadastrar
+            <Button variant="primary" type="submit" disabled={isSigningUp}>
+              {isSigningUp ? "Criando conta..." : "Criar conta"}
             </Button>
           </div>
         </form>

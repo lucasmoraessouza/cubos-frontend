@@ -3,40 +3,18 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { signIn } from "../http/auth";
-import type { SignInResponse } from "../types/auth";
+import { useAuth } from "../hooks/useAuth";
 import { initialValuesSignin, validationSigninSchema } from "../schemas/auth";
 
 export function Signin() {
   const navigate = useNavigate();
-
-  const { mutateAsync: signInFn, isPending } = useMutation<
-    SignInResponse,
-    Error,
-    { email: string; password: string }
-  >({
-    mutationFn: signIn,
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.token);
-
-      toast.success("Login realizado com sucesso!", {
-        description: `Bem vindo(a), ${data.user.name}!`,
-      });
-
-      navigate("/home");
-    },
-    onError: (error: any) => {
-      toast.error(error.response.data.message);
-    },
-  });
+  const { signIn, isSigningIn } = useAuth();
 
   const formik = useFormik({
     initialValues: initialValuesSignin,
     validationSchema: validationSigninSchema,
     onSubmit: async (values) => {
-      await signInFn({
+      await signIn({
         email: values.email,
         password: values.password,
       });
@@ -57,7 +35,7 @@ export function Signin() {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              disabled={isPending}
+              disabled={isSigningIn}
             />
             {formik.touched.email && formik.errors.email && (
               <span className="text-red-500 text-sm">
@@ -76,7 +54,7 @@ export function Signin() {
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              disabled={isPending}
+              disabled={isSigningIn}
             />
             {formik.touched.password && formik.errors.password && (
               <span className="text-red-500 text-sm">
@@ -92,8 +70,8 @@ export function Signin() {
             >
               Criar uma conta
             </span>
-            <Button variant="primary" type="submit" disabled={isPending}>
-              Entrar
+            <Button variant="primary" type="submit" disabled={isSigningIn}>
+              {isSigningIn ? "Entrando..." : "Entrar"}
             </Button>
           </div>
         </form>

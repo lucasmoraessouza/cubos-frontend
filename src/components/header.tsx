@@ -16,12 +16,12 @@ export function Header() {
       <header className="relative z-10 flex items-center justify-between px-6 py-4 ">
         <div className="flex items-center gap-2">
           <img  
-            src="./src/assets/images/header-cubos.png"
+            src="/src/assets/images/header-cubos.png"
             alt="logo"
             className="hidden md:block"
           />
           <img
-            src="./src/assets/images/header-cubos-mobile.png"
+            src="/src/assets/images/header-cubos-mobile.png"
             alt="logo"
             className="block md:hidden"
           />

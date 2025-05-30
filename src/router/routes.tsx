@@ -4,6 +4,7 @@ import { Layout } from "../layout/main";
 import { Signin } from "../pages/Signin";
 import { Home } from "../pages/Home";
 import { PrivateRoute } from "../components/private-route";
+import { DetailedMovie } from "../pages/DetailedMovie";
 
 export function Router() {
   return (
@@ -17,6 +18,7 @@ export function Router() {
         <Route element={<PrivateRoute />}>
           <Route element={<Layout />}>
             <Route path="/home" element={<Home />} />
+            <Route path="/movies/:id" element={<DetailedMovie />} />
           </Route>
         </Route>
       </Routes>
