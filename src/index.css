@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --font-roboto: "Roboto", sans-serif;
+  --font-serrat: "Serrat", sans-serif;
+
+  --color-purple-100: #fefcfe;
+  --color-purple-200: #fbf7fe;
+  --color-purple-300: #f7edfe;
+  --color-purple-400: #f2e2fc;
+  --color-purple-500: #ead5f9;
+  --color-purple-600: #e0c4f4;
+  --color-purple-700: #d1afec;
+  --color-purple-800: #be93e4;
+  --color-purple-900: #8e4ec6;
+  --color-purple-1000: #8347b9;
+  --color-purple-1100: #8145b5;
+  --color-purple-1200: #402060;
+
+  --color-purple-dark-100: #18111b;
+  --color-purple-dark-200: #1e1523;
+  --color-purple-dark-300: #3d224e;
+  --color-purple-dark-400: #3d224e;
+  --color-purple-dark-500: #48295c;
+  --color-purple-dark-600: #54346b;
+  --color-purple-dark-700: #664282;
+  --color-purple-dark-800: #8457aa;
+  --color-purple-dark-900: #8e4ec6;
+  --color-purple-dark-1000: #9a5cd0;
+  --color-purple-dark-1100: #d19dff;
+  --color-purple-dark-1200: #ecd9fa;
+
+  --color-purple-dark-a100: rgba(180, 18, 249, 0.043);
+  --color-purple-dark-a200: rgba(183, 68, 247, 0.08);
+  --color-purple-dark-a300: rgba(193, 80, 255, 0.1765);
+  --color-purple-dark-a400: rgba(187, 83, 253, 0.2588);
+  --color-purple-dark-a500: rgba(190, 92, 253, 0.3176);
+  --color-purple-dark-a600: rgba(193, 109, 253, 0.3804);
+  --color-purple-dark-a700: rgba(195, 120, 253, 0.4784);
+  --color-purple-dark-a800: rgba(196, 126, 255, 0.6431);
+  --color-purple-dark-a900: rgba(182, 97, 255, 0.7608);
+  --color-purple-dark-a1000: rgba(188, 111, 255, 0.8039);
+  --color-purple-dark-a1100: rgba(209, 157, 255, 1);
+  --color-purple-dark-a1200: rgba(236, 217, 250, 0.95);
+
+  --color-mauve-100: #fdfcfd;
+  --color-mauve-200: #faf9fb;
+  --color-mauve-300: #f2eff3;
+  --color-mauve-400: #eae7ec;
+  --color-mauve-500: #e3dfe6;
+  --color-mauve-600: #dbd8e0;
+  --color-mauve-700: #d0cdd7;
+  --color-mauve-800: #bcbac7;
+  --color-mauve-900: #8e8c99;
+  --color-mauve-1000: #84828e;
+  --color-mauve-1100: #65636d;
+  --color-mauve-1200: #211f26;
+
+  --color-mauve-dark-100: #121113;
+  --color-mauve-dark-200: #1a191b;
+  --color-mauve-dark-300: #232225;
+  --color-mauve-dark-400: #2b292d;
+  --color-mauve-dark-500: #323035;
+  --color-mauve-dark-600: #3c393f;
+  --color-mauve-dark-700: #49474e;
+  --color-mauve-dark-800: #625f69;
+  --color-mauve-dark-900: #6f6d78;
+  --color-mauve-dark-1000: #7c7a85;
+  --color-mauve-dark-1100: #b5b2bc;
+  --color-mauve-dark-1200: #eeeef0;
+}
