@@ -15,7 +15,7 @@ export interface CreateMovieRequest {
   budget: number;
   revenue: number;
   originalLanguage: OriginalLanguage;
-  imageUrl: string;
+  poster: File;
   genres: Genre[];
   trailerUrl?: string;
 }
@@ -37,23 +37,6 @@ export interface MovieResponse {
   createdAt: string;
   updatedAt: string;
   trailerUrl?: string;
-}
-
-export interface MovieCreateRequest {
-  originalTitle: string;
-  portugueseTitle: string;
-  synopsis: string;
-  popularity: number;
-  voteCount: number;
-  releaseDate: string;
-  duration: number;
-  imageUrl: string;
-  budget: number;
-  revenue: number;
-  originalLanguage: OriginalLanguage;
-  genres: Genre[];
-  trailerUrl?: string;
-  
 }
 
 export interface MovieUpdateRequest {

@@ -1,43 +1,55 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "./ui/button";
-import { Genre, OriginalLanguage } from "../types/enums";
+import { Genre, genreLabels, OriginalLanguage } from "../types/enums";
 import { Close } from "../assets/icons/close";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { MovieFilterDto } from "../types/movie";
 
 interface FiltersModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onApplyFilters: (filters: MovieFilterDto) => void;
+  initialFilters: MovieFilterDto;
 }
 
-interface MovieFilterDto {
-  title?: string;
-  minDuration?: number;
-  maxDuration?: number;
-  startDate?: string;
-  endDate?: string;
-  page?: number;
-  limit?: number;
-  genre?: Genre;
-  originalLanguage?: OriginalLanguage;
-}
+export function FiltersModal({
+  open,
+  onOpenChange,
+  onApplyFilters,
+  initialFilters,
+}: FiltersModalProps) {
+  const [filters, setFilters] = useState<MovieFilterDto>(initialFilters);
 
-export function FiltersModal({ open, onOpenChange, onApplyFilters }: FiltersModalProps) {
-  const [filters, setFilters] = useState<MovieFilterDto>({
-    page: 1,
-    limit: 10
-  });
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
 
   const handleApplyFilters = () => {
     onApplyFilters(filters);
     onOpenChange(false);
   };
 
+  const handleClearFilters = () => {
+    const clearedFilters: MovieFilterDto = {
+      page: 1,
+      limit: 10,
+      minDuration: undefined,
+      maxDuration: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      genre: undefined,
+      originalLanguage: undefined
+    };
+    
+    onApplyFilters(clearedFilters);
+    onOpenChange(false);
+  };
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger asChild>
-        <button className="bg-purple-dark-a200 px-5 py-2.5 rounded-[2px] text-mauve-dark-1200">
+        <button className="bg-purple-dark-a200 px-5 py-2.5 rounded-[2px] text-mauve-dark-1200 cursor-pointer w-full md:w-fit">
           Filtros
         </button>
       </Dialog.Trigger>
@@ -50,50 +62,60 @@ export function FiltersModal({ open, onOpenChange, onApplyFilters }: FiltersModa
 
           <div className="mt-6 flex flex-col gap-6">
             <div>
-              <h3 className="mb-4 text-sm font-semibold text-white">Título</h3>
-              <Input
-                type="text"
-                placeholder="Buscar por título"
-                className="bg-mauve-dark-300"
-                value={filters.title || ''}
-                onChange={(e) => setFilters(prev => ({ ...prev, title: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <h3 className="mb-4 text-sm font-semibold text-white">Duração (minutos)</h3>
+              <h3 className="mb-4 text-sm font-semibold text-white">
+                Duração (minutos)
+              </h3>
               <div className="flex gap-4">
                 <Input
                   type="number"
                   placeholder="Mínimo"
                   className="bg-mauve-dark-300"
-                  value={filters.minDuration || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, minDuration: parseInt(e.target.value) || undefined }))}
+                  value={filters.minDuration || ""}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      minDuration: parseInt(e.target.value) || undefined,
+                    }))
+                  }
                 />
                 <Input
                   type="number"
                   placeholder="Máximo"
                   className="bg-mauve-dark-300"
-                  value={filters.maxDuration || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, maxDuration: parseInt(e.target.value) || undefined }))}
+                  value={filters.maxDuration || ""}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      maxDuration: parseInt(e.target.value) || undefined,
+                    }))
+                  }
                 />
               </div>
             </div>
 
             <div>
-              <h3 className="mb-4 text-sm font-semibold text-white">Período de Lançamento</h3>
+              <h3 className="mb-4 text-sm font-semibold text-white">
+                Período de Lançamento
+              </h3>
               <div className="flex gap-4">
                 <Input
                   type="date"
                   className="bg-mauve-dark-300"
-                  value={filters.startDate || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                  value={filters.startDate || ""}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      startDate: e.target.value,
+                    }))
+                  }
                 />
                 <Input
                   type="date"
                   className="bg-mauve-dark-300"
-                  value={filters.endDate || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                  value={filters.endDate || ""}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, endDate: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -106,41 +128,54 @@ export function FiltersModal({ open, onOpenChange, onApplyFilters }: FiltersModa
                     key={genre}
                     variant="secondary"
                     className={`rounded-full px-4 py-2 text-sm ${
-                      filters.genre === genre 
-                        ? 'bg-purple-dark-a200 text-white' 
-                        : 'bg-mauve-dark-300 text-white hover:bg-purple-dark-a200'
+                      filters.genre === genre
+                        ? "bg-purple-dark-a200 text-white"
+                        : "bg-mauve-dark-300 text-white hover:bg-purple-dark-a200"
                     }`}
-                    onClick={() => setFilters(prev => ({ 
-                      ...prev, 
-                      genre: prev.genre === genre ? undefined : genre 
-                    }))}
+                    onClick={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        genre: prev.genre === genre ? undefined : genre,
+                      }))
+                    }
                   >
-                    {genre}
+                    {genreLabels[genre]}
                   </Button>
                 ))}
               </div>
             </div>
 
             <div>
-              <h3 className="mb-4 text-sm font-semibold text-white">Idioma Original</h3>
+              <h3 className="mb-4 text-sm font-semibold text-white">
+                Idioma Original
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {Object.values(OriginalLanguage).map((language) => (
                   <Button
                     key={language}
                     variant="secondary"
                     className={`rounded-full px-4 py-2 text-sm ${
-                      filters.originalLanguage === language 
-                        ? 'bg-purple-dark-a200 text-white' 
-                        : 'bg-mauve-dark-300 text-white hover:bg-purple-dark-a200'
+                      filters.originalLanguage === language
+                        ? "bg-purple-dark-a200 text-white"
+                        : "bg-mauve-dark-300 text-white hover:bg-purple-dark-a200"
                     }`}
-                    onClick={() => setFilters(prev => ({ 
-                      ...prev, 
-                      originalLanguage: prev.originalLanguage === language ? undefined : language 
-                    }))}
+                    onClick={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        originalLanguage:
+                          prev.originalLanguage === language
+                            ? undefined
+                            : language,
+                      }))
+                    }
                   >
-                    {language === "en" ? "Inglês" :
-                     language === "pt" ? "Português" :
-                     language === "es" ? "Espanhol" : "Francês"}
+                    {language === "en"
+                      ? "Inglês"
+                      : language === "pt"
+                      ? "Português"
+                      : language === "es"
+                      ? "Espanhol"
+                      : "Francês"}
                   </Button>
                 ))}
               </div>
@@ -152,12 +187,12 @@ export function FiltersModal({ open, onOpenChange, onApplyFilters }: FiltersModa
               <Button
                 variant="secondary"
                 className="rounded-md bg-mauve-dark-300 text-white hover:bg-mauve-dark-300/80"
-                onClick={() => setFilters({ page: 1, limit: 10 })}
+                onClick={handleClearFilters}
               >
                 Limpar Filtros
               </Button>
             </Dialog.Close>
-            <Button 
+            <Button
               className="rounded-md bg-purple-dark-a200 text-white hover:bg-purple-dark-a200/80"
               onClick={handleApplyFilters}
             >

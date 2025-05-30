@@ -43,10 +43,9 @@ export function Pagination({
     return rangeWithDots;
   };
 
-  if (totalPages <= 1) return null;
 
   return (
-    <div className="flex justify-center gap-3 mt-auto">
+    <div className="flex justify-center gap-3 mt-auto mb-4">
       <Button
         variant="primary"
         size="sm"

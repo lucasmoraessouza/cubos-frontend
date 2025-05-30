@@ -1,17 +1,20 @@
 import { useParams } from "react-router";
 import { useMovieDetails } from "../hooks/useMovieDetails";
 import { Loader } from "../components/ui/loader";
-import { Button } from "../components/ui/button";
 import { EditMovie } from "../components/edit-movie";
+import { useQueryClient } from "@tanstack/react-query";
+import { DeleteMovieModal } from "../components/delete-modal";
+import { genreLabels } from "../types/enums";
 
 export function DetailedMovie() {
   const { id } = useParams();
   const { data: movie, isLoading } = useMovieDetails(id as string);
-
+  const queryClient = useQueryClient();
+  
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader />
+      <div className="fixed inset-0 flex items-center justify-center bg-mauve-dark-100">
+        <Loader className="w-8 h-8" />
       </div>
     );
   }
@@ -20,17 +23,14 @@ export function DetailedMovie() {
 
   return (
     <div className="relative min-h-screen w-full bg-mauve-dark-100 pb-16">
-      <div className="flex justify-end gap-2 absolute right-8 top-8 z-10">
-        <EditMovie movie={movie} />
-        <Button
-          variant="primary"
-          className=" text-mauve-dark-1200 hover:bg-red-500/80"
-          onClick={() => {
-            /* Lógica para deletar */
+      <div className=" justify-end gap-2 absolute right-8 top-8 z-10 hidden lg:flex">
+        <EditMovie
+          movie={movie}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["movie", id] });
           }}
-        >
-          Deletar
-        </Button>
+        />
+        <DeleteMovieModal movieId={movie.id} movieTitle={movie.originalTitle} />
       </div>
 
       <div
@@ -44,13 +44,14 @@ export function DetailedMovie() {
           ), url(${movie.imageUrl})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       />
 
       <div className="mx-auto max-w-[1322px] px-8">
-        <div className="relative -mt-[550px] flex gap-8 flex-col md:flex-row">
-          <div className="flex flex-col gap-4 items-center md:items-start">
-            <div className="flex flex-col gap-1">
+        <div className="relative -mt-[600px] flex gap-4 lg:gap-8 flex-col lg:flex-row">
+          <div className="lg:flex-col gap-4 items-center lg:items-start flex-row justify-center">
+            <div className=" flex-col gap-1 hidden lg:flex">
               <h1 className="font-serrat text-[32px] text-mauve-dark-1200">
                 {movie.portugueseTitle}
               </h1>
@@ -61,12 +62,33 @@ export function DetailedMovie() {
             <img
               src={movie.imageUrl}
               alt={movie.originalTitle}
-              className="h-[542px] w-[374px] rounded-[4px] object-cover"
+              className="max-h-[542px] lg:w-[374px] rounded-[4px] object-cover w-full"
             />
           </div>
 
-          <div className="flex flex-1 gap-8 items-center md:flex-row flex-col">
-            <div className="flex w-[426px] flex-col gap-6">
+          <div className="flex flex-col lg:flex-row flex-1 gap-8 items-center">
+            <div className="flex w-full lg:w-[426px] flex-col gap-6">
+              <div className="flex flex-col gap-1  lg:hidden">
+                <h1 className="font-serrat text-[32px] text-mauve-dark-1200">
+                  {movie.portugueseTitle}
+                </h1>
+                <p className="font-serrat text-[16px] font-light text-mauve-dark-1200">
+                  Título original: {movie.originalTitle}
+                </p>
+              </div>
+              <div className="lg:hidden justify-end gap-2 flex">
+                <EditMovie
+                  movie={movie}
+                  onSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ["movie", id] });
+                  }}
+                />
+                <DeleteMovieModal
+                  movieId={movie.id}
+                  movieTitle={movie.originalTitle}
+                />
+              </div>
+
               <div className="rounded-[4px] bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
                 <span className="text-mauve-dark-1100 font-serrat font-semibold text-[16px] ">
                   SINOPSE
@@ -86,75 +108,71 @@ export function DetailedMovie() {
                       key={genre}
                       className="rounded-[2px] bg-purple-dark-a200 p-2 font-serrat text-[12px] font-normal text-mauve-dark-1200"
                     >
-                      {genre}
+                      {genreLabels[genre]}
                     </span>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-x-8 gap-y-4">
-              <div className="col-span-3 grid grid-cols-2 gap-x-8">
-                <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
-                  <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
-                    POPULARIDADE
-                  </span>
-                  <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
-                    {movie.popularity.toLocaleString()}
-                  </div>
-                </div>
-
-                <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
-                  <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
-                    VOTOS
-                  </span>
-                  <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
-                    {movie.voteCount.toLocaleString()}
-                  </div>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 w-full">
+              <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
+                <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
+                  POPULARIDADE
+                </span>
+                <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
+                  {movie.popularity.toLocaleString()}
                 </div>
               </div>
 
-              <div className="col-span-3 grid grid-cols-2 gap-x-8">
-                <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
-                  <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
-                    LANÇAMENTO
-                  </span>
-                  <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
-                    {new Date(movie.releaseDate).toLocaleDateString()}
-                  </div>
-                </div>
-
-                <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
-                  <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
-                    DURAÇÃO
-                  </span>
-                  <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
-                    {`${Math.floor(movie.duration / 60)}h ${
-                      movie.duration % 60
-                    }m`}
-                  </div>
+              <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
+                <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
+                  VOTOS
+                </span>
+                <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
+                  {movie.voteCount.toLocaleString()}
                 </div>
               </div>
 
-              <div className="col-span-3 grid grid-cols-2 gap-x-8">
-                <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
-                  <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
-                    SITUAÇÃO
-                  </span>
-                  <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
-                    Lançado
-                  </div>
+              <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
+                <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
+                  LANÇAMENTO
+                </span>
+                <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
+                  {new Date(movie.releaseDate).toLocaleDateString()}
                 </div>
+              </div>
 
-                <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
-                  <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
-                    IDIOMA
-                  </span>
-                  <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
-                    {movie.originalLanguage === "en"
-                      ? "Inglês"
-                      : movie.originalLanguage}
-                  </div>
+              <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
+                <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
+                  DURAÇÃO
+                </span>
+                <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
+                  {`${Math.floor(movie.duration / 60)}h ${
+                    movie.duration % 60
+                  }m`}
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
+                <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
+                  SITUAÇÃO
+                </span>
+                <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
+                  {new Date() >= new Date(movie.releaseDate)
+                    ? "Lançado"
+                    : "Em breve"}
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-mauve-dark-300/60 p-4 backdrop-blur-sm">
+                <span className="text-mauve-dark-1100 font-serrat font-semibold text-[12px] ">
+                  IDIOMA
+                </span>
+                <div className="text-mauve-dark-1100 font-serrat text-[16px] font-normal">
+                  {movie.originalLanguage === "en"
+                    ? "Inglês"
+                    : movie.originalLanguage}
                 </div>
               </div>
 
