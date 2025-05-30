@@ -2,48 +2,45 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useFormik } from "formik";
-import * as yup from "yup";
 import { useNavigate } from "react-router";
-
-const validationSchema = yup.object().shape({
-  name: yup
-    .string()
-    .required("Nome é obrigatório")
-    .min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
-  password: yup
-    .string()
-    .required("Senha é obrigatória")
-    .min(6, "Senha deve ter no mínimo 6 caracteres")
-    .matches(
-      /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/,
-      "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula e um número ou caractere especial"
-    ),
-  confirmPassword: yup
-    .string()
-    .required("Confirmação de senha é obrigatória")
-    .oneOf([yup.ref("password")], "As senhas não coincidem"),
-});
+import { useMutation } from "@tanstack/react-query";
+import { initialValuesSignup, validationSignupSchema } from "../schemas/auth";
+import { toast } from "sonner";
+import { signUp } from "../http/auth";
+import type { SignUpRequest, SignUpResponse } from "../types/auth";
 
 export function Signup() {
   const navigate = useNavigate();
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+
+  const { mutateAsync: signUpFn, isPending } = useMutation<
+    SignUpResponse,
+    Error,
+    SignUpRequest
+  >({
+    mutationFn: signUp,
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token);
+      toast.success("Cadastro realizado com sucesso!", {
+        description: `Bem vindo(a), ${data.user.name}!`,
+      });
+      navigate("/home");
     },
-    validationSchema,
-    onSubmit: (values) => {
-      // Aqui você pode implementar a lógica de cadastro
-      console.log(values);
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
     },
   });
-
-  function handleSignin() {
-    navigate("/");
-  }
+  const formik = useFormik({
+    initialValues: initialValuesSignup,
+    validationSchema: validationSignupSchema,
+    onSubmit: (values) => {
+      signUpFn({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+      });
+    },
+  });
 
   return (
     <div className="flex-1 flex items-center justify-center px-4">
@@ -123,11 +120,11 @@ export function Signup() {
           <div className="flex w-full justify-between items-center mt-2">
             <span
               className="text-purple-dark-900 underline cursor-pointer"
-              onClick={handleSignin}
+              onClick={() => navigate("/")}
             >
               Já tenho uma conta
             </span>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" disabled={isPending}>
               Cadastrar
             </Button>
           </div>

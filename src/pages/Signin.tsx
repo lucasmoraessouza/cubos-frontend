@@ -3,38 +3,45 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
-import * as yup from "yup";
-
-const validationSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required("Nome/Email é obrigatório")
-    .min(3, "Nome/Email deve ter no mínimo 3 caracteres"),
-  password: yup
-    .string()
-    .required("Senha é obrigatória")
-    .min(6, "Senha deve ter no mínimo 6 caracteres"),
-});
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { signIn } from "../http/auth";
+import type { SignInResponse } from "../types/auth";
+import { initialValuesSignin, validationSigninSchema } from "../schemas/auth";
 
 export function Signin() {
   const navigate = useNavigate();
 
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
+  const { mutateAsync: signInFn, isPending } = useMutation<
+    SignInResponse,
+    Error,
+    { email: string; password: string }
+  >({
+    mutationFn: signIn,
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token);
+
+      toast.success("Login realizado com sucesso!", {
+        description: `Bem vindo(a), ${data.user.name}!`,
+      });
+
+      navigate("/home");
     },
-    validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      // localStorage.setItem("token", "1234567890");
-      // navigate("/home");
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
     },
   });
 
-  function handleSignup() {
-    navigate("/signup");
-  }
+  const formik = useFormik({
+    initialValues: initialValuesSignin,
+    validationSchema: validationSigninSchema,
+    onSubmit: async (values) => {
+      await signInFn({
+        email: values.email,
+        password: values.password,
+      });
+    },
+  });
 
   return (
     <div className="flex-1 flex items-center justify-center px-4">
@@ -50,6 +57,7 @@ export function Signin() {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isPending}
             />
             {formik.touched.email && formik.errors.email && (
               <span className="text-red-500 text-sm">
@@ -68,6 +76,7 @@ export function Signin() {
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isPending}
             />
             {formik.touched.password && formik.errors.password && (
               <span className="text-red-500 text-sm">
@@ -79,11 +88,11 @@ export function Signin() {
           <div className="flex w-full justify-between items-center mt-2">
             <span
               className="text-purple-dark-900 underline cursor-pointer"
-              onClick={handleSignup}
+              onClick={() => navigate("/signup")}
             >
               Criar uma conta
             </span>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" disabled={isPending}>
               Entrar
             </Button>
           </div>
