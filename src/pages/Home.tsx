@@ -9,7 +9,6 @@ import { useState, useEffect } from "react";
 import { FiltersModal } from "../components/filters-modal";
 import { useDebounce } from "../hooks/useDebounce";
 import type { MovieFilterDto, MovieResponse } from "../types/movie";
-import { Close } from "../assets/icons/close";
 import { getMovies } from "../http/movies";
 
 export function Home() {
